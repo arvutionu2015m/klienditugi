@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if suggested_solution %}
+    <div class="alert alert-info">
+        <strong>Soovitus:</strong> {{ suggested_solution }}
+    </div>
+{% endif %}
+
+    <div class="container mt-4">
+        <h2>Pilet: {{ ticket.subject }}</h2>
+        <p><strong>Esitaja:</strong> {{ ticket.user.username }}</p>
+        <p><strong>Staatus:</strong> {{ ticket.get_status_display }}</p>
+        <p><strong>Prioriteet:</strong> {{ ticket.get_priority_display }}</p>
+        <p><strong>Kirjeldus:</strong> {{ ticket.description }}</p>
+        <p><strong>Loodud:</strong> {{ ticket.created_at }}</p>
+        <p><strong>Viimati uuendatud:</strong> {{ ticket.updated_at }}</p>
+
+        <a href="{% url 'ticket_list' %}" class="btn btn-secondary">Tagasi nimekirja</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Esita uus pilet</h2>
+    <p>Palun täitke allolev vorm, et saaksime teie probleemiga aidata.</p>
+
+    <form method="POST" class="card p-4 shadow-sm bg-white">
+        {% csrf_token %}
+        
+        <!-- Vigade kuvamine -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Palun parandage järgnevad vead:</strong>
+                <ul>
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Piletite vorm -->
+        <div class="form-group">
+            <label for="id_subject">Teema</label>
+            {{ form.subject }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_description">Kirjeldus</label>
+            {{ form.description }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_priority">Prioriteet</label>
+            {{ form.priority }}
+        </div>
+
+        <button type="submit" class="btn btn-success">Esita pilet</button>
+        <a href="{% url 'ticket_list' %}" class="btn btn-secondary">Tagasi nimekirja</a>
+    </form>
+</div>
+
+{% endblock %}

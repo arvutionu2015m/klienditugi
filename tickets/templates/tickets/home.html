@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Tere tulemast Klienditoe Süsteemi!</h1>
+        {% if user.is_authenticated %}
+            <p class="lead">Tere, <strong>{{ user.username }}</strong>! Saate hallata oma päringuid ja saada kiiret abi.</p>
+        {% else %}
+            <p class="lead">Logige sisse ja looge päringuid, et saada kiireimat tuge.</p>
+        {% endif %}
+        <hr class="my-4">
+        {% if user.is_authenticated %}
+            <a class="btn btn-primary btn-lg" href="{% url 'create_ticket' %}" role="button">Esita uus pilet</a>
+            <a class="btn btn-secondary btn-lg" href="{% url 'ticket_list' %}" role="button">Vaata minu pileteid</a>
+        {% else %}
+            <a class="btn btn-success btn-lg" href="{% url 'login' %}" role="button">Logi sisse</a>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <h2>Minu aktiivsed piletid</h2>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Teema</th>
+                    <th>Staatus</th>
+                    <th>Prioriteet</th>
+                    <th>Viimati uuendatud</th>
+                    <th>Vaata</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr>
+                        <td>{{ ticket.subject }}</td>
+                        <td><span class="badge badge-{% if ticket.status == 'open' %}danger{% elif ticket.status == 'in_progress' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                            {{ ticket.get_status_display }}
+                        </span></td>
+                        <td>{{ ticket.get_priority_display }}</td>
+                        <td>{{ ticket.updated_at|date:"d.m.Y H:i" }}</td>
+                        <td><a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-info btn-sm">Ava</a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Teil ei ole aktiivseid pileteid.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

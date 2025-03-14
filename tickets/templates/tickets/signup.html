@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registreeri uus konto</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Registreeru</button>
+    </form>
+    <p>Oled juba registreerunud? <a href="{% url 'login' %}">Logi sisse</a></p>
+</div>
+{% endblock %}

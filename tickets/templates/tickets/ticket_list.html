@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Minu Piletid</h2>
+    <div class="mb-3">
+        <a href="{% url 'export_tickets_csv' %}" class="btn btn-outline-primary">Ekspordi CSV</a>
+        <a href="{% url 'export_tickets_pdf' %}" class="btn btn-outline-danger">Ekspordi PDF</a>
+    </div>
+    
+    <!-- Otsing ja filtreerimine -->
+    <form method="GET" class="form-inline mb-3">
+        <input type="text" name="q" class="form-control mr-2" placeholder="Otsi piletit..." value="{{ request.GET.q }}">
+        <select name="status" class="form-control mr-2">
+            <option value="">Kõik staatused</option>
+            <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Avatud</option>
+            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Töös</option>
+            <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Lahendatud</option>
+            <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Suletud</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filtreeri</button>
+    </form>
+
+    <!-- Piletite tabel -->
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Teema</th>
+                <th>Staatus</th>
+                <th>Prioriteet</th>
+                <th>Viimati uuendatud</th>
+                <th>Vaata</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.subject }}</td>
+                    <td>
+                        <span class="badge badge-{% if ticket.status == 'open' %}danger{% elif ticket.status == 'in_progress' %}warning{% elif ticket.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                            {{ ticket.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{% if ticket.priority == 'urgent' %}danger{% elif ticket.priority == 'high' %}warning{% elif ticket.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                            {{ ticket.get_priority_display }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.updated_at|date:"d.m.Y H:i" }}</td>
+                    <td><a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-info btn-sm">Ava</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Teil ei ole veel pileteid.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Lehekülgede jagamine -->
+    {% if tickets.has_other_pages %}
+        <nav aria-label="Piletite navigeerimine">
+            <ul class="pagination justify-content-center">
+                {% if tickets.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&q={{ request.GET.q }}&status={{ request.GET.status }}">Algusesse</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tickets.previous_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}">« Eelmine</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <a class="page-link">Leht {{ tickets.number }} / {{ tickets.paginator.num_pages }}</a>
+                </li>
+
+                {% if tickets.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tickets.next_page_number }}&q={{ request.GET.q }}&status={{ request.GET.status }}">Järgmine »</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tickets.paginator.num_pages }}&q={{ request.GET.q }}&status={{ request.GET.status }}">Lõppu</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+    <a href="{% url 'create_ticket' %}" class="btn btn-success">Loo uus pilet</a>
+</div>
+{% endblock %}
